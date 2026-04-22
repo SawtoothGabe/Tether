@@ -171,7 +171,7 @@ namespace Tether
 
     void Window::SetCursorMode(const CursorMode mode)
     {
-        auto& app = reinterpret_cast<Application::Impl&>(m_App);
+        Application::Impl& app = *m_App.GetImpl();
 
         if (m_impl->m_CursorMode == CursorMode::DISABLED && mode != CursorMode::DISABLED)
             app.m_HiddenCursorWindow = nullptr;
@@ -850,9 +850,9 @@ namespace Tether
             m_ClassName += allChars[dist(generator)];
     }
 
-    void* Window::GetHandle() const
+    size_t Window::GetHandle() const
     {
-        return m_impl->m_Hwnd;
+        return reinterpret_cast<size_t>(m_impl->m_Hwnd);
     }
 
     Window::Impl* Window::GetImpl() const

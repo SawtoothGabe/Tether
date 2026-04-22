@@ -22,6 +22,11 @@ namespace Tether
 		m_IsRunning = false;
 	}
 
+	Application::Impl* Application::GetImpl() const
+	{
+		return m_impl.get();
+	}
+
 	Application& Application::Get()
 	{
 		static Application instance;

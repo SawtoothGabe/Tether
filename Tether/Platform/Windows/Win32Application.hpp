@@ -8,6 +8,7 @@ namespace Tether
 {
 	struct TETHER_EXPORT Application::Impl
 	{
+		HINSTANCE hinstance = nullptr;
 		Window::Impl* m_HiddenCursorWindow = nullptr;
 	};
 }

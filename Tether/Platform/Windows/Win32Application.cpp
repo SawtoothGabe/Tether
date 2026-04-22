@@ -76,6 +76,7 @@ namespace Tether
 	Application::Application()
 	{
 		m_impl = std::make_unique<Impl>();
+		m_impl->hinstance = GetModuleHandle(nullptr);
 
 		memset(m_Keycodes, -1, sizeof(m_Keycodes));
 		memset(m_Scancodes, -1, sizeof(m_Scancodes));
@@ -260,5 +261,10 @@ namespace Tether
 			if (keycodes[scancode] > 0)
 				scancodes[keycodes[scancode]] = scancode;
 		}
+	}
+
+	void* Application::GetHandle() const
+	{
+		return m_impl->hinstance;
 	}
 }

@@ -39,6 +39,14 @@ namespace Tether
 		
 		size_t GetMonitorCount();
         std::vector<Devices::Monitor> GetMonitors();
+
+
+		/**
+		 *
+		 * @return The HINSTANCE on Windows, and a pointer to the Xorg Display on Linux.
+		 */
+		void* GetHandle() const;
+		Impl* GetImpl() const;
 		
 		static Application& Get();
 	private:

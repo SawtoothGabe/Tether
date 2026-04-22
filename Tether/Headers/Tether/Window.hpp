@@ -96,9 +96,9 @@ namespace Tether
 
 		/**
 		 *
-		 * @return The HWND on windows, a pointer to the window ID
+		 * @return The HWND on Windows, and an Xorg Window on Linux.
 		 */
-		void* GetHandle() const;
+		size_t GetHandle() const;
 		Impl* GetImpl() const;
 	private:
 		Application& m_App;
