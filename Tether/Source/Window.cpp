@@ -2,6 +2,7 @@
 
 namespace Tether
 {
+
 	void Window::AddEventHandler(Events::EventHandler& handler,
 		Events::EventType eventType)
 	{

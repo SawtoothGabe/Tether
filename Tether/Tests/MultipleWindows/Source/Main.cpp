@@ -4,12 +4,13 @@
 
 #include <thread>
 #include <chrono>
+#include <deque>
 #include <math.h>
 
 using namespace std::literals::chrono_literals;
 using namespace Tether;
 
-static constexpr const size_t WINDOW_COUNT = 30;
+static constexpr const size_t WINDOW_COUNT = 3;
 static bool s_WindowsClosed[WINDOW_COUNT]{};
 
 class TestWindow
@@ -35,46 +36,35 @@ public:
 
 	TestWindow(const Devices::Monitor& monitor, size_t windowIndex)
 		:
-		m_Window(Window::Create(700, 700, std::to_wstring(windowIndex + 1))),
-		handler(*m_Window, windowIndex)
+		m_Window(700, 700, std::to_wstring(windowIndex + 1)),
+		handler(m_Window, windowIndex)
 	{
-		int usableWidth = monitor.GetWidth() - m_Window->GetWidth();
-		int usableHeight = monitor.GetHeight() - m_Window->GetHeight();
+		int usableWidth = monitor.GetWidth() - m_Window.GetWidth();
+		int usableHeight = monitor.GetHeight() - m_Window.GetHeight();
 
-		m_Window->AddEventHandler(handler, Events::EventType::WINDOW_CLOSING);
+		m_Window.AddEventHandler(handler, Events::EventType::WINDOW_CLOSING);
 
-		m_Window->SetResizable(false);
-		m_Window->SetRawInputEnabled(true);
+		m_Window.SetResizable(false);
+		m_Window.SetRawInputEnabled(true);
 
-		m_Window->SetX(120);
-		m_Window->SetY(120);
+		m_Window.SetX(120);
+		m_Window.SetY(120);
 
-		m_Window->SetVisible(true);
+		m_Window.SetVisible(true);
 
-		m_Window->SetX(rand() % std::max(0, usableWidth));
-		m_Window->SetY(rand() % std::max(0, usableHeight));
-	}
-
-	TestWindow(TestWindow&& other) noexcept
-		:
-		m_Window(std::move(other.m_Window)),
-		handler(*m_Window, other.handler.m_WindowIndex)
-	{
-		m_Window->RemoveEventHandler(other.handler);
-		m_Window->AddEventHandler(handler, Events::EventType::WINDOW_CLOSING);
+		m_Window.SetX(rand() % std::max(0, usableWidth));
+		m_Window.SetY(rand() % std::max(0, usableHeight));
 	}
 
 	bool IsCloseRequested()
 	{
-		return m_Window->IsCloseRequested();
+		return m_Window.IsCloseRequested();
 	}
 private:
-	Scope<Window> m_Window;
+	Window m_Window;
 
 	EventHandler handler;
 };
-
-static std::vector<TestWindow> windows;
 
 void TestWindow::EventHandler::OnWindowClosing()
 {
@@ -99,14 +89,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 int main()
 #endif
 {
-	windows.reserve(WINDOW_COUNT);
-
 	std::vector<Devices::Monitor> monitors = Application::Get().GetMonitors();
 	Devices::Monitor monitor = monitors[0];
 
+	std::deque<TestWindow> windows;
+
 	for (size_t i = 0; i < WINDOW_COUNT; i++)
 	{
-		windows.push_back(TestWindow(monitor, i));
+		windows.emplace_back(monitor, i);
 		std::this_thread::sleep_for(100ms);
 	}
 
