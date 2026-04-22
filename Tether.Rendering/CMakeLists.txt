@@ -47,6 +47,7 @@ PUBLIC
 PRIVATE
 	${TETHER_BINARY_DIR}
 	${TETHER_DIR}/Headers
+
 )
 
 target_link_libraries(${PROJECT_NAME}

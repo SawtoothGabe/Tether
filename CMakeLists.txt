@@ -14,7 +14,7 @@ set(TETHER_DIR ${TETHER_PROJECT_DIR}/Tether)
 set(TETHER_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 option(TETHER_BUILD_TESTS "Build tether with tests" OFF)
-option(TETHER_BUILD_AS_SHARED "Build tether as a shared library" ON)
+option(TETHER_BUILD_AS_SHARED "Build tether as a shared library" OFF)
 option(TETHER_BUILD_RENDERING "Build Tether.Rendering" OFF)
 option(TETHER_HEADLESS "Build Tether without window capabilities (headless)" OFF)
 
@@ -35,15 +35,6 @@ function(DeclareGitRepo libName gitRepo)
         SUBBUILD_DIR ${CMAKE_BINARY_DIR}/Vendor/${libName}-subbuild
     )
 endfunction()
-
-if (TETHER_BUILD_AS_SHARED)
-	set(TETHER_LIBRARY_MODE SHARED)
-	add_definitions(-D_TETHER_BUILD_DLL)
-else()
-	set(TETHER_LIBRARY_MODE STATIC)
-	add_definitions(-D_TETHER_STATIC)
-	add_definitions(-D_TETHER_BUILD_STATIC)
-endif()
 
 add_subdirectory(Vendor)
 add_subdirectory("Tether")
