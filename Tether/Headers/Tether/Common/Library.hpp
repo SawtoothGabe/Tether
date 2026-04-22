@@ -8,14 +8,12 @@ namespace Tether
 	class TETHER_EXPORT Library
 	{
 	public:
-		Library(std::string_view path);
+		explicit Library(std::string_view path);
+		Library(Library&& other) noexcept;
 		~Library();
 
-		Library(Library&& other);
-
-		void* LoadFunction(std::string_view functionName);
-
-		void* GetHandle() const;
+		void* LoadFunction(std::string_view functionName) const;
+		[[nodiscard]] void* GetHandle() const;
 	private:
 		void* m_LibraryHandle = nullptr;
 	};

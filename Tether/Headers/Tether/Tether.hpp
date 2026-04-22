@@ -11,4 +11,3 @@
 
 #include <Tether/Application.hpp>
 #include <Tether/Window.hpp>
-#include <Tether/NativeWindow.hpp>

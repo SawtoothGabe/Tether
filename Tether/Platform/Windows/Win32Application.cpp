@@ -1,4 +1,3 @@
-#include <Tether/Platform/Win32Application.hpp>
 #include <cstring>
 
 #ifdef UNICODE
@@ -6,9 +5,10 @@
 #endif
 #include <Windows.h>
 
-#include <Tether/Platform/Win32Window.hpp>
+#include "Win32Application.hpp"
+#include "Win32Window.hpp"
 
-namespace Tether::Platform
+namespace Tether
 {
 	static BOOL CALLBACK EnumerateMonitors(
 		HMONITOR hMonitor,
@@ -58,7 +58,7 @@ namespace Tether::Platform
 			currentDevmode.dmPelsHeight
 		);
 
-		((std::vector<Devices::Monitor>*)dwData)->emplace_back(
+		reinterpret_cast<std::vector<Devices::Monitor>*>(dwData)->emplace_back(
 			monitorInfo.rcMonitor.left,
 			monitorInfo.rcMonitor.top,
 			monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
@@ -73,52 +73,65 @@ namespace Tether::Platform
 		return TRUE;
 	}
 
-	void Win32Application::Run() 
+	Application::Application()
+	{
+		m_impl = std::make_unique<Impl>();
+
+		memset(m_Keycodes, -1, sizeof(m_Keycodes));
+		memset(m_Scancodes, -1, sizeof(m_Scancodes));
+
+		CreateKeyLUTs(m_Keycodes, m_Scancodes);
+	}
+
+	Application::~Application()
+	{}
+
+	void Application::Run()
 	{
 		MSG msg;
-		while (GetMessage(&msg, NULL, 0, 0) > 0 && IsRunning())
+		while (GetMessage(&msg, nullptr, 0, 0) > 0 && IsRunning())
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
-			if (m_HiddenCursorWindow && m_HiddenCursorWindow->IsFocused())
-				m_HiddenCursorWindow->SetCursorPos(
-					static_cast<int>(m_HiddenCursorWindow->GetWidth() / 2),
-					static_cast<int>(m_HiddenCursorWindow->GetHeight() / 2)
+			if (m_impl->m_HiddenCursorWindow && m_impl->m_HiddenCursorWindow->m_window.IsFocused())
+				m_impl->m_HiddenCursorWindow->m_window.SetCursorPos(
+					m_impl->m_HiddenCursorWindow->m_window.GetWidth() / 2,
+					m_impl->m_HiddenCursorWindow->m_window.GetHeight() / 2
 				);
 		}
 	}
 
-	void Win32Application::PollEvents()
+	void Application::PollEvents() const
 	{
 		MSG msg{};
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
-		if (m_HiddenCursorWindow && m_HiddenCursorWindow->IsFocused())
-			m_HiddenCursorWindow->SetCursorPos(
-				static_cast<int>(m_HiddenCursorWindow->GetWidth() / 2),
-				static_cast<int>(m_HiddenCursorWindow->GetHeight() / 2)
+		if (m_impl->m_HiddenCursorWindow && m_impl->m_HiddenCursorWindow->m_window.IsFocused())
+			m_impl->m_HiddenCursorWindow->m_window.SetCursorPos(
+				m_impl->m_HiddenCursorWindow->m_window.GetWidth() / 2,
+				m_impl->m_HiddenCursorWindow->m_window.GetHeight() / 2
 			);
 	}
 
-	size_t Win32Application::GetMonitorCount()
+	size_t Application::GetMonitorCount()
 	{
 		return GetSystemMetrics(SM_CMONITORS);
 	}
 
-	std::vector<Devices::Monitor> Win32Application::GetMonitors()
+	std::vector<Devices::Monitor> Application::GetMonitors()
 	{
 		std::vector<Devices::Monitor> monitors;
-		EnumDisplayMonitors(NULL, NULL, EnumerateMonitors, (LPARAM)&monitors);
+		EnumDisplayMonitors(nullptr, nullptr, EnumerateMonitors, reinterpret_cast<LPARAM>(&monitors));
 
 		return monitors;
 	}
 
-	void Win32Application::CreateKeyLUTs(int16_t* keycodes, int16_t* scancodes)
+	void Application::CreateKeyLUTs(int16_t* keycodes, int16_t* scancodes)
 	{
 		keycodes[0x00B] = Keycodes::KEY_0;
 		keycodes[0x002] = Keycodes::KEY_1;

@@ -2,9 +2,7 @@
 
 #include <Tether/Tether.hpp>
 
-#include <thread>
 #include <chrono>
-#include <math.h>
 
 using namespace std::literals::chrono_literals;
 using namespace Tether;
@@ -15,19 +13,19 @@ public:
 	class EventHandler : public Events::EventHandler
 	{
 	public:
-		void OnWindowResize(const Events::WindowResizeEvent& event)
+		void OnWindowResize(const Events::WindowResizeEvent& event) override
 		{
 			std::cout << "Resized window to W=" << event.GetNewWidth()
 				<< ", H=" << event.GetNewHeight() << std::endl;
 		}
 
-		void OnWindowMove(const Events::WindowMoveEvent& event)
+		void OnWindowMove(const Events::WindowMoveEvent& event) override
 		{
 			std::cout << "Moved window to X=" << event.GetX()
 				<< ", Y=" << event.GetY() << std::endl;
 		}
 
-		void OnWindowClosing()
+		void OnWindowClosing() override
 		{
 			Application::Get().Stop();
 		}
@@ -36,7 +34,7 @@ public:
 	class TestListener : public Input::InputListener
 	{
 	public:
-		void OnMouseMove(Input::MouseMoveInfo& info)
+		void OnMouseMove(Input::MouseMoveInfo& info) override
 		{
 			std::cout << "Mouse move ("
 				<< "relX=" << info.GetRelativeX() << ", "
@@ -45,7 +43,7 @@ public:
 				<< std::endl;
 		}
 
-		void OnRawMouseMove(Input::RawMouseMoveInfo& info)
+		void OnRawMouseMove(Input::RawMouseMoveInfo& info) override
 		{
 			std::cout << "Raw mouse move ("
 				<< "rawX=" << info.GetRawX() << ", "
@@ -54,7 +52,7 @@ public:
 				<< std::endl;
 		}
 
-		void OnKey(Input::KeyInfo& info)
+		void OnKey(Input::KeyInfo& info) override
 		{
 			std::string tru = "true";
 			std::string fals = "false";
@@ -67,7 +65,7 @@ public:
 				<< std::endl;
 		}
 
-		void OnKeyChar(Input::KeyCharInfo& info)
+		void OnKeyChar(Input::KeyCharInfo& info) override
 		{
 			std::string tru = "true";
 			std::string fals = "false";
@@ -82,31 +80,31 @@ public:
 
 	TestWindow()
 		:
-		m_Window(Window::Create(1280, 720, L"TestWindow"))
+		m_Window(1280, 720, L"TestWindow")
 	{
-		m_Window->AddEventHandler(handler, Events::EventType::WINDOW_CLOSING);
-		m_Window->AddEventHandler(handler, Events::EventType::WINDOW_RESIZE);
-		m_Window->AddEventHandler(handler, Events::EventType::WINDOW_MOVE);
+		m_Window.AddEventHandler(handler, Events::EventType::WINDOW_CLOSING);
+		m_Window.AddEventHandler(handler, Events::EventType::WINDOW_RESIZE);
+		m_Window.AddEventHandler(handler, Events::EventType::WINDOW_MOVE);
 
-		m_Window->AddInputListener(listener, Input::InputType::MOUSE_MOVE);
-		m_Window->AddInputListener(listener, Input::InputType::RAW_MOUSE_MOVE);
-		m_Window->AddInputListener(listener, Input::InputType::KEY);
-		m_Window->AddInputListener(listener, Input::InputType::KEY_CHAR);
+		m_Window.AddInputListener(listener, Input::InputType::MOUSE_MOVE);
+		m_Window.AddInputListener(listener, Input::InputType::RAW_MOUSE_MOVE);
+		m_Window.AddInputListener(listener, Input::InputType::KEY);
+		m_Window.AddInputListener(listener, Input::InputType::KEY_CHAR);
 
-		m_Window->SetRawInputEnabled(true);
+		m_Window.SetRawInputEnabled(true);
 
-		m_Window->SetX(120);
-		m_Window->SetY(120);
+		m_Window.SetX(120);
+		m_Window.SetY(120);
 
-		m_Window->SetVisible(true);
+		m_Window.SetVisible(true);
 	}
 
 	~TestWindow()
 	{
-		m_Window->RemoveEventHandler(handler);
+		m_Window.RemoveEventHandler(handler);
 	}
 private:
-	Scope<Window> m_Window;
+	Window m_Window;
 
 	EventHandler handler;
 	TestListener listener;

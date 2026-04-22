@@ -1,25 +1,26 @@
 #pragma once
 
 #include <Tether/Application.hpp>
-#include <Tether/Common/Types.hpp>
 #include <Tether/Common/Defs.hpp>
+#include <Tether/Common/Types.hpp>
+#include <Tether/Devices/Monitor.hpp>
 #include <Tether/Events/EventHandler.hpp>
 #include <Tether/Events/EventType.hpp>
 #include <Tether/Input/InputListener.hpp>
-#include <Tether/Devices/Monitor.hpp>
 
-#include <string_view>
-#include <vector>
+#include <atomic>
 #include <functional>
 #include <mutex>
 #include <shared_mutex>
-#include <atomic>
+#include <string_view>
+#include <vector>
 
 namespace Tether
 {
-	class TETHER_EXPORT Window
+	class TETHER_EXPORT Window final
 	{
 	public:
+		struct Impl;
 		enum class Type
 		{
 			NORMAL
@@ -32,19 +33,17 @@ namespace Tether
 			DISABLED,
 		};
 
-		static Scope<Window> Create(int width, int height, std::wstring_view title,
+		Window(int width, int height, std::wstring_view title,
 			bool visible = false);
-
-		Window();
-		virtual ~Window() = 0;
+		~Window();
 		TETHER_NO_COPY(Window);
 
 		void AddEventHandler(Events::EventHandler& handler, 
 			Events::EventType eventType);
-		void RemoveEventHandler(Events::EventHandler& handler);
+		void RemoveEventHandler(const Events::EventHandler& handler);
 		void AddInputListener(Input::InputListener& listener, 
 			Input::InputType inputType);
-		void RemoveInputListener(Input::InputListener& listener);
+		void RemoveInputListener(const Input::InputListener& listener);
 
 		void SetCloseRequested(bool requested);
 		bool IsCloseRequested() const;
@@ -61,30 +60,30 @@ namespace Tether
 
 		void SpawnKeyInput(uint32_t scancode, uint32_t keycode, bool pressed);
 
-		virtual void SetVisible(bool visibility) = 0;
-		virtual void SetRawInputEnabled(bool enabled) = 0;
-		virtual void SetCursorMode(Window::CursorMode mode) = 0;
-		virtual void SetCursorPos(int x, int y) = 0;
-		virtual void SetCursorRootPos(int x, int y) = 0;
-		virtual void SetX(int x) = 0;
-		virtual void SetY(int y) = 0;
-		virtual void SetPosition(int x, int y) = 0;
-		virtual void SetWidth(int width) = 0;
-		virtual void SetHeight(int height) = 0;
-		virtual void SetSize(int width, int height) = 0;
-		virtual void SetTitle(std::wstring_view title) = 0;
-		virtual void SetBoundsEnabled(bool enabled) = 0;
-		virtual void SetBounds(int minWidth, int minHeight, int maxWidth, int maxHeight) = 0;
-		virtual void SetDecorated(bool enabled) = 0;
-		virtual void SetResizable(bool resizable) = 0;
-		virtual void SetClosable(bool closable) = 0;
-		virtual void SetButtonStyleBitmask(uint8_t mask) = 0;
-		virtual void SetMaximized(bool maximized) = 0;
-		virtual void SetPreferredResizeInc(int x, int y) = 0;
-		virtual void EnableFullscreen(const Devices::Monitor& monitor) = 0;
-		virtual void DisableFullscreen() = 0;
-		virtual bool IsFocused() = 0;
-		virtual bool IsVisible() = 0;
+		void SetVisible(bool visibility) const;
+		void SetRawInputEnabled(bool enabled) const;
+		void SetCursorMode(CursorMode mode);
+		void SetCursorPos(int x, int y) const;
+		void SetCursorRootPos(int x, int y);
+		void SetX(int x);
+		void SetY(int y);
+		void SetPosition(int x, int y);
+		void SetWidth(int width);
+		void SetHeight(int height);
+		void SetSize(int width, int height);
+		void SetTitle(std::wstring_view title) const;
+		void SetBoundsEnabled(bool enabled) const;
+		void SetBounds(int minWidth, int minHeight, int maxWidth, int maxHeight);
+		void SetDecorated(bool enabled) const;
+		void SetResizable(bool resizable) const;
+		void SetClosable(bool closable) const;
+		void SetButtonStyleBitmask(uint8_t mask) const;
+		void SetMaximized(bool maximize) const;
+		void SetPreferredResizeInc(int x, int y);
+		void EnableFullscreen(const Devices::Monitor& monitor) const;
+		void DisableFullscreen() const;
+		bool IsFocused() const;
+		bool IsVisible() const;
 
 		int GetY() const;
 		int GetX() const;
@@ -94,7 +93,14 @@ namespace Tether
 		int GetMouseY() const;
 		int GetRelativeMouseX() const;
 		int GetRelativeMouseY() const;
-	protected:
+
+		/**
+		 *
+		 * @return The HWND on windows, a pointer to the window ID
+		 */
+		void* GetHandle() const;
+		Impl* GetImpl() const;
+	private:
 		Application& m_App;
 
 		int m_X = 0;
@@ -106,7 +112,9 @@ namespace Tether
 		int m_MouseY = -1;
 		int m_RelMouseX = -1;
 		int m_RelMouseY = -1;
-	private:
+
+		std::unique_ptr<Impl> m_impl;
+
 		std::atomic_bool m_CloseRequested = false;
 
 		// Each event has a list of handlers to handle that specific event.

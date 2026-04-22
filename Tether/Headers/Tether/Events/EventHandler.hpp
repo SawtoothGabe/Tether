@@ -2,12 +2,8 @@
 
 #include <Tether/Common/Defs.hpp>
 
-#include <Tether/Events/WindowClosingEvent.hpp>
-#include <Tether/Events/WindowRepaintEvent.hpp>
-#include <Tether/Events/WindowResizeEvent.hpp>
 #include <Tether/Events/WindowMoveEvent.hpp>
-
-#include <vector>
+#include <Tether/Events/WindowResizeEvent.hpp>
 
 namespace Tether::Events
 {

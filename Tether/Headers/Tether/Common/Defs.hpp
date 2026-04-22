@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Tether/Platform/PlatformDefs.hpp>
+#include <Tether/Common/PlatformDefs.hpp>
 
 #include <cassert>
 

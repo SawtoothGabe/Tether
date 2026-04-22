@@ -9,8 +9,8 @@ namespace Tether
 {
 	struct ButtonStyleMask
 	{
-		static constexpr const uint8_t MINIMIZE_BUTTON = 1 << 0;
-		static constexpr const uint8_t MAXIMIZE_BUTTON = 1 << 1;
+		static constexpr uint8_t MINIMIZE_BUTTON = 1 << 0;
+		static constexpr uint8_t MAXIMIZE_BUTTON = 1 << 1;
 	};
 
 	enum class FullscreenFields

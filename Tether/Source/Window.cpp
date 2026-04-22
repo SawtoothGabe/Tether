@@ -1,17 +1,7 @@
 #include <Tether/Window.hpp>
-#include <Tether/Common/VectorUtils.hpp>
-
-#include <cstring>
 
 namespace Tether
 {
-	Window::Window()
-		:
-		m_App(Application::Get())
-	{}
-
-	Window::~Window() {}
-
 	void Window::AddEventHandler(Events::EventHandler& handler,
 		Events::EventType eventType)
 	{
@@ -27,13 +17,13 @@ namespace Tether
 		m_Handlers[eventType].push_back(&handler);
 	}
 
-	void Window::RemoveEventHandler(Events::EventHandler& handler)
+	void Window::RemoveEventHandler(const Events::EventHandler& handler)
 	{
 		using namespace Events;
 
 		std::scoped_lock handlersLock(m_HandlersMutex);
 
-		std::vector<Events::EventType> toErase;
+		std::vector<EventType> toErase;
 
 		for (auto iter = m_Handlers.begin(); iter != m_Handlers.end(); iter++)
 		{
@@ -69,7 +59,7 @@ namespace Tether
 		m_InputListeners[inputType].push_back(&listener);
 	}
 
-	void Window::RemoveInputListener(Input::InputListener& listener)
+	void Window::RemoveInputListener(const Input::InputListener& listener)
 	{
 		using namespace Input;
 
